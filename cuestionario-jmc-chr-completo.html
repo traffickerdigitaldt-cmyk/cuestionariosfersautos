@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Cuestionario estratégico · JMC CHR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12161a;
+    --surface:#1b2127;
+    --surface-2:#232b33;
+    --line:#2e3944;
+    --text:#edeff1;
+    --text-dim:#8f9ba5;
+    --accent:#ff6a39;
+    --accent-ink:#1c1108;
+    --accent-2:#f5b700;
+    --good:#4caf6d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.oswald{font-family:'Oswald',sans-serif;}
+  button{font-family:inherit;}
+  .app-shell{
+    max-width:640px;
+    margin:0 auto;
+    min-height:100vh;
+    min-height:100svh;
+    background:var(--bg);
+    position:relative;
+    padding-bottom:120px;
+  }
+  .topstripe{
+    position:sticky;top:0;left:0;right:0;
+    height:5px;background:var(--line);
+    z-index:20;
+  }
+  .topstripe-fill{
+    height:100%;background:var(--accent);
+    transition:width .35s ease;
+  }
+  .admin-toggle{
+    position:fixed;top:12px;right:12px;
+    font-size:0.68rem;letter-spacing:.03em;
+    padding:6px 11px;border-radius:999px;
+    background:rgba(255,255,255,0.06);
+    color:var(--text-dim);border:1px solid var(--line);
+    cursor:pointer;z-index:30;
+  }
+  .admin-toggle:hover{color:var(--text);border-color:var(--text-dim);}
+
+  /* Intro */
+  .intro{padding:30px 22px 60px;}
+  .intro-kicker{
+    color:var(--accent-2);font-size:0.78rem;font-weight:600;
+    letter-spacing:.04em;margin-bottom:6px;
+  }
+  .intro h1{
+    font-size:1.85rem;line-height:1.15;margin:0 0 14px;font-weight:700;
+  }
+  .intro p{color:var(--text-dim);font-size:0.95rem;line-height:1.55;margin:0 0 10px;}
+  .callout{
+    border:1px dashed var(--accent-2);
+    background:rgba(245,183,0,0.08);
+    border-radius:10px;padding:16px 16px;
+    font-size:0.89rem;line-height:1.55;margin:22px 0;color:var(--text);
+  }
+  .callout b{color:var(--accent-2);}
+  .callout .fire{margin-top:10px;font-weight:600;color:var(--accent-2);}
+  .example-line{
+    background:var(--surface-2);border-radius:8px;padding:8px 12px;
+    font-size:0.85rem;color:var(--text-dim);margin:6px 0;
+  }
+  .example-line b{color:var(--text);font-weight:600;}
+  .stat-row{display:flex;gap:10px;margin:22px 0;}
+  .stat{
+    flex:1;background:var(--surface);border:1px solid var(--line);
+    border-radius:10px;padding:14px;text-align:center;
+  }
+  .stat .num{font-family:'Oswald',sans-serif;font-size:1.5rem;font-weight:700;color:var(--accent);}
+  .stat .label{font-size:0.72rem;color:var(--text-dim);margin-top:2px;}
+  .btn{
+    border:none;border-radius:9px;padding:14px 20px;
+    font-weight:600;font-size:0.97rem;cursor:pointer;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink);width:100%;}
+  .btn-primary:active{transform:scale(.985);}
+  .btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--line);}
+
+  /* Step / form */
+  .step-header{padding:26px 22px 4px;}
+  .step-kicker{
+    color:var(--accent-2);font-size:0.76rem;font-weight:600;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  .step-title{font-size:1.45rem;font-weight:700;margin-top:6px;line-height:1.2;}
+
+  .q{padding:20px 22px;border-bottom:1px solid var(--line);}
+  .q-label{display:block;font-weight:600;font-size:0.97rem;margin-bottom:6px;}
+  .q-help{font-size:0.82rem;color:var(--text-dim);line-height:1.5;margin-bottom:10px;}
+
+  .field{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);padding:11px 13px;
+    font:inherit;font-size:0.94rem;
+  }
+  textarea.field{min-height:82px;resize:vertical;line-height:1.45;}
+  textarea.field.quote{font-style:italic;min-height:96px;}
+  .field:focus{outline:none;border-color:var(--accent);}
+  .field::placeholder{color:#5c6772;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:9px 14px;border:1px solid var(--line);border-radius:999px;
+    font-size:0.86rem;cursor:pointer;background:var(--surface-2);
+    color:var(--text-dim);position:relative;
+  }
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .chip--on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600;}
+  .chip--rank.chip--on{padding-left:28px;}
+  .chip--rank .badge{
+    position:absolute;left:8px;top:50%;transform:translateY(-50%);
+    width:16px;height:16px;border-radius:50%;background:var(--accent-ink);
+    color:var(--accent-2);font-size:0.62rem;display:flex;align-items:center;
+    justify-content:center;font-weight:700;
+  }
+  .other-input{margin-top:10px;}
+  .explain-input{margin-top:12px;}
+  .field-mini-label{font-size:0.78rem;color:var(--text-dim);margin:12px 0 6px;font-weight:600;}
+
+  .list-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .list-item .num{
+    font-family:'Oswald',sans-serif;color:var(--text-dim);
+    width:20px;text-align:right;font-size:0.85rem;flex-shrink:0;
+  }
+  .list-item .field{flex:1;}
+
+  .fillblank{
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+    font-size:0.94rem;line-height:1.7;color:var(--text);
+  }
+  .fillblank input.field{flex:1;min-width:150px;}
+
+  .bottom-bar{
+    position:fixed;left:0;right:0;bottom:0;
+    max-width:640px;margin:0 auto;
+    background:var(--surface);border-top:1px solid var(--line);
+    padding:8px 16px calc(14px + env(safe-area-inset-bottom));
+    z-index:20;
+  }
+  .submit-error{
+    background:rgba(255,90,60,0.12);border:1px solid #ff5a3c;
+    color:#ffb3a0;border-radius:8px;padding:9px 12px;
+    font-size:0.8rem;margin-bottom:8px;line-height:1.4;
+  }
+  .autosave-row{
+    font-size:0.72rem;color:var(--text-dim);
+    display:flex;justify-content:space-between;padding:4px 2px 8px;
+  }
+  #autosave-indicator{opacity:0;transition:opacity .3s;color:var(--good);}
+  #autosave-indicator.show{opacity:1;}
+  .nav-row{display:flex;gap:10px;}
+  .nav-row .btn-ghost{flex:0 0 auto;padding:14px 16px;}
+  .nav-row .btn-primary{flex:1;}
+  .btn:disabled{opacity:.35;cursor:default;}
+
+  /* Done screen */
+  .done{padding:70px 24px;text-align:center;}
+  .done .check{
+    width:64px;height:64px;border-radius:50%;background:var(--good);
+    color:#0d1f14;font-size:1.8rem;display:flex;align-items:center;justify-content:center;
+    margin:0 auto 20px;font-weight:700;
+  }
+  .done h2{font-size:1.4rem;margin-bottom:10px;}
+  .done p{color:var(--text-dim);font-size:0.92rem;line-height:1.5;margin-bottom:26px;}
+
+  /* Admin */
+  .admin{padding:60px 20px 60px;}
+  .admin h2{font-size:1.3rem;margin-bottom:4px;}
+  .admin .sub{color:var(--text-dim);font-size:0.85rem;margin-bottom:20px;}
+  .sub-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    margin-bottom:12px;overflow:hidden;
+  }
+  .sub-card summary{
+    padding:14px 16px;cursor:pointer;font-size:0.88rem;
+    display:flex;justify-content:space-between;gap:10px;list-style:none;
+  }
+  .sub-card summary::-webkit-details-marker{display:none;}
+  .sub-card summary .when{color:var(--text-dim);font-size:0.78rem;}
+  .sub-card .body{padding:0 16px 16px;border-top:1px solid var(--line);}
+  .a-block-title{
+    font-family:'Oswald',sans-serif;color:var(--accent-2);
+    font-size:0.82rem;letter-spacing:.02em;margin:16px 0 6px;
+  }
+  .a-q{font-size:0.84rem;font-weight:600;margin-top:10px;}
+  .a-ans{font-size:0.86rem;color:var(--text-dim);white-space:pre-wrap;margin-top:3px;line-height:1.5;}
+  .empty-note{color:var(--text-dim);font-size:0.88rem;text-align:center;padding:30px 0;}
+  .admin-actions{display:flex;gap:10px;margin-bottom:20px;}
+  .admin-note{font-size:0.75rem;color:var(--text-dim);margin-top:24px;line-height:1.5;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div id="app" class="app-shell">
+  <div class="intro"><p>Cargando…</p></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------------------------------------------------------- */
+  /* DATA                                                              */
+  /* ---------------------------------------------------------------- */
+  var BLOCKS = [
+    { id:1, title:"Perfil del cliente real", emoji:"👤", questions:[
+      { id:"q1", type:"textarea", label:"¿Quiénes son las personas que más preguntan o compran el JMC CHR?",
+        help:"Describe los perfiles que ves repetidamente: ¿a qué se dedican?, ¿son independientes?, ¿tienen empresas?, ¿ya tienen otros vehículos?, ¿transportan mercancía?, ¿buscan comenzar un negocio?" },
+      { id:"q2", type:"textarea", label:"¿Cuál de esos perfiles es el que más termina comprando?",
+        help:"No el que más pregunta — el que realmente compra." },
+      { id:"q3", type:"textarea", label:"¿Cuál es la principal diferencia entre quien pregunta y quien finalmente compra?" },
+      { id:"q4", type:"textarea", label:"Cuando un cliente llega por primera vez, ¿qué situación suele estar viviendo?",
+        help:"Ejemplos: necesita renovar vehículo, su negocio creció, tiene problemas logísticos, quiere independizarse, quiere aumentar su flota." }
+    ]},
+    { id:2, title:"El momento que dispara la búsqueda", emoji:"🔥", questions:[
+      { id:"q5", type:"textarea", label:"¿Qué sucede normalmente en la vida o negocio del cliente para que empiece a buscar un camión?" },
+      { id:"q6", type:"fillblank", label:"Completa esta frase con lo que más escuchas:",
+        prefix:"Los clientes empiezan a buscar un camión cuando", suffix:"." },
+      { id:"q7", type:"textarea", label:"¿Qué problema específico intentan resolver cuando llegan a preguntar?",
+        help:"No \u201cquieren un camión\u201d — ¿qué quieren solucionar?" },
+      { id:"q8", type:"textarea", label:"¿Qué consecuencias tiene ese problema para ellos?",
+        help:"Puede afectar: tiempo, dinero, trabajo, clientes, crecimiento, estrés." }
+    ]},
+    { id:3, title:"Mapa profundo del dolor", emoji:"😖", questions:[
+      { id:"q9", type:"list", count:5, itemLabel:"Problema",
+        label:"¿Cuáles son los 5 problemas que más mencionan los clientes?" },
+      { id:"q10", type:"textarea", label:"De esos problemas, ¿cuál parece generar más preocupación o urgencia?",
+        help:"¿Por qué?" },
+      { id:"q11", type:"list", count:5, itemLabel:"Frase",
+        label:"¿Qué frases exactas utilizan los clientes cuando hablan de sus problemas?",
+        help:"Escribe literalmente las frases. Ejemplos: \u201cEstoy perdiendo mucha plata en fletes\u201d, \u201cNo consigo transporte cuando lo necesito\u201d, \u201cEl carro que tengo ya no me alcanza\u201d." }
+    ]},
+    { id:4, title:"Impacto económico", emoji:"💰", questions:[
+      { id:"q12", type:"textarea", label:"¿Los clientes hablan de pérdidas de dinero, gastos, fletes, tiempo perdido u oportunidades perdidas?",
+        help:"¿Qué dicen exactamente?" },
+      { id:"q13", type:"textarea", label:"¿En qué momento sienten que su situación actual les está costando demasiado?" },
+      { id:"q14", type:"textarea", label:"¿Qué creen que cambiaría económicamente si tuvieran el camión adecuado?",
+        help:"No queremos promesas — queremos conocer su percepción." }
+    ]},
+    { id:5, title:"Miedos y preocupaciones", emoji:"😰", questions:[
+      { id:"q15", type:"textarea", label:"¿Qué es lo que más miedo les da antes de comprar un camión?" },
+      { id:"q16", type:"textarea", label:"¿Qué preguntas hacen porque tienen miedo de equivocarse?",
+        help:"Por ejemplo: \u201c¿Y si no me sirve?\u201d, \u201c¿Y si no consigo trabajo?\u201d, \u201c¿Y si es muy costoso mantenerlo?\u201d. Escribe las preguntas reales." },
+      { id:"q17", type:"textarea", label:"¿Qué es lo peor que creen que podría pasar después de comprar?" }
+    ]},
+    { id:6, title:"Deseos y aspiraciones", emoji:"🚀", questions:[
+      { id:"q18", type:"textarea", label:"Cuando hablan de tener su propio camión, ¿qué es lo que realmente quieren conseguir?",
+        help:"No características — ¿qué quieren lograr en su vida o negocio?" },
+      { id:"q19", type:"fillblank", label:"Completa la frase:",
+        prefix:"Si pudiera tener el camión que necesita, lo primero que cambiaría en su negocio sería", suffix:"." },
+      { id:"q20", type:"textarea", label:"¿Qué frases utilizan cuando hablan de crecer?" },
+      { id:"q21", type:"textarea", label:"¿Qué creen que podrán hacer con un camión que actualmente no pueden hacer?" }
+    ]},
+    { id:7, title:"Identidad y emoción", emoji:"🧠", questions:[
+      { id:"q22", type:"textarea", label:"¿Qué significa emocionalmente para una persona tener su propio camión?" },
+      { id:"q23", type:"textarea", label:"¿Has escuchado clientes hablar de independencia, progreso, familia, estabilidad o crecimiento?",
+        help:"¿Qué dijeron exactamente?" },
+      { id:"q24", type:"checkbox", allowOther:true, withExplain:true, explainLabel:"Explica",
+        label:"Después de comprar, ¿qué crees que representa el camión para ellos?",
+        options:["Una herramienta de trabajo","Una inversión","Independencia","Progreso","Crecimiento empresarial","Patrimonio","Estabilidad","Orgullo personal"] }
+    ]},
+    { id:8, title:"Objeciones", emoji:"🚧", questions:[
+      { id:"q25", type:"list", count:10, itemLabel:"Objeción",
+        label:"¿Cuáles son las 10 objeciones más frecuentes antes de comprar?" },
+      { id:"q26", type:"textarea", label:"¿Cuál es la objeción que más hace que un cliente no compre?" },
+      { id:"q27", type:"checkbox", allowOther:true,
+        label:"Cuando un cliente dice \u201cestá caro\u201d, ¿qué crees que realmente está ocurriendo?",
+        options:["No tiene presupuesto.","Está comparando.","No entiende el valor.","Tiene miedo de endeudarse.","Está buscando financiación.","Es una forma de aplazar la decisión."] },
+      { id:"q28", type:"twotext", labels:["Fáciles","Difíciles"],
+        label:"¿Qué objeciones puedes resolver fácilmente y cuáles son difíciles de superar?" }
+    ]},
+    { id:9, title:"Preguntas reales del cliente", emoji:"❓", questions:[
+      { id:"q29", type:"list", count:10, itemLabel:"Pregunta",
+        label:"¿Cuáles son las 10 preguntas que más te hacen?",
+        help:"Esta sección es oro para crear contenido: reels, anuncios, hooks, carruseles, videos educativos, contenido para WhatsApp." }
+    ]},
+    { id:10, title:"Competencia y comparación", emoji:"⚔️", questions:[
+      { id:"q30", type:"textarea", label:"¿Qué otras marcas o camiones comparan frecuentemente con JMC?" },
+      { id:"q31", type:"textarea", label:"¿Qué preguntas hacen cuando están comparando?" },
+      { id:"q32", type:"ranked", allowOther:true,
+        label:"¿Qué características valoran más cuando comparan opciones?",
+        help:"Toca las opciones en orden de importancia, de mayor a menor. Vuelve a tocar una opción para quitarla.",
+        options:["Precio","Capacidad de carga","Consumo","Marca","Repuestos","Mantenimiento","Financiación","Garantía","Servicio posventa","Tecnología"] },
+      { id:"q33", type:"textarea", label:"¿Por qué razones has visto que un cliente elige otra opción?" }
+    ]},
+    { id:11, title:"El momento de la decisión", emoji:"💥", questions:[
+      { id:"q34", type:"textarea", label:"¿Qué preguntas hace una persona que tiene alta intención de compra?" },
+      { id:"q35", type:"textarea", label:"¿Qué señales te hacen pensar \u201ceste cliente probablemente sí va a comprar\u201d?" },
+      { id:"q36", type:"textarea", label:"¿Qué suele pasar justo antes de que un cliente tome la decisión?" },
+      { id:"q37", type:"checkbox", allowOther:true,
+        label:"¿Qué factor suele ser decisivo para cerrar la venta?",
+        options:["Precio","Financiación","Disponibilidad","Confianza en la asesora","Producto","Prueba o demostración","Necesidad urgente","Recomendación"] }
+    ]},
+    { id:12, title:"Clientes que no compran", emoji:"❌", questions:[
+      { id:"q38", type:"textarea", label:"¿Por qué razones crees que muchos interesados no terminan comprando?" },
+      { id:"q39", type:"textarea", label:"¿Qué pasa después de que dicen \u201cyo te aviso\u201d?" },
+      { id:"q40", type:"textarea", label:"¿Qué tipo de cliente pregunta mucho pero rara vez compra?" },
+      { id:"q41", type:"radioText", otherLabel:"Otro momento", whyLabel:"¿Por qué crees que sucede?",
+        label:"¿En qué parte del proceso sientes que más clientes se pierden?",
+        options:["Primer contacto.","Después de conocer el precio.","Después de revisar financiación.","Después de comparar.","Después de la cotización.","Después de la prueba/demostración."] }
+    ]},
+    { id:13, title:"Mensajes que conectan", emoji:"📣", questions:[
+      { id:"q42", type:"textarea", label:"¿Qué cosas que tú dices generan mayor interés en el cliente?",
+        help:"No lo que \u201cdebería funcionar\u201d — lo que realmente ves que funciona." },
+      { id:"q43", type:"textarea", label:"¿Qué beneficios hacen que los clientes presten más atención?" },
+      { id:"q44", type:"textarea", label:"¿Qué palabras o frases hacen que el cliente reaccione positivamente?" },
+      { id:"q45", type:"textarea", label:"¿Qué palabras o argumentos parecen no importarles?" }
+    ]},
+    { id:14, title:"El producto a través de los ojos del cliente", emoji:"🚚", questions:[
+      { id:"q46", type:"textarea", label:"¿Qué es lo primero que más les llama la atención del JMC CHR?" },
+      { id:"q47", type:"textarea", label:"¿Qué características del camión generan mayor interés?" },
+      { id:"q48", type:"textarea", label:"¿Qué característica necesitas explicar más porque los clientes no la entienden?" },
+      { id:"q49", type:"textarea", label:"¿Qué beneficio del JMC CHR consideras muy importante, pero los clientes todavía no valoran lo suficiente?" }
+    ]},
+    { id:15, title:"La pregunta más poderosa", emoji:"🔥", questions:[
+      { id:"q50", type:"textarea", quote:true,
+        label:"Si pudieras entrar en la mente del cliente justo antes de decidir comprar un camión, ¿qué crees que realmente está pensando?",
+        help:"Escribe como si fueras el cliente.", placeholder:"\u201c…\u201d" }
+    ]}
+  ];
+
+  var QMAP = {};
+  BLOCKS.forEach(function(b){ b.questions.forEach(function(q){ QMAP[q.id] = q; }); });
+
+  var DRAFT_KEY = "jmc-chr-cuestionario-draft";
+
+  /* ---------------------------------------------------------------- */
+  /* STATE                                                             */
+  /* ---------------------------------------------------------------- */
+  function defaultAnswer(q){
+    switch(q.type){
+      case "textarea": case "fillblank": return "";
+      case "list": { var a=[]; for(var i=0;i<q.count;i++) a.push(""); return a; }
+      case "checkbox": return { selected:[], otherOn:false, other:"", explain:"" };
+      case "twotext": return { a:"", b:"" };
+      case "radioText": return { selected:"", otherOn:false, otherText:"", why:"" };
+      case "ranked": return { order:[], otherText:"" };
+      default: return "";
+    }
+  }
+
+  var state = {
+    view: "loading", // loading | intro | form | done
+    step: 0,
+    answers: {},
+    submitting: false,
+    submitError: null
+  };
+  BLOCKS.forEach(function(b){ b.questions.forEach(function(q){ state.answers[q.id] = defaultAnswer(q); }); });
+
+  var autosaveTimer = null;
+
+  /* ---------------------------------------------------------------- */
+  /* STORAGE                                                           */
+  /* ---------------------------------------------------------------- */
+  /* ⚠️ CONFIGURACIÓN OBLIGATORIA:
+     Reemplaza el valor de abajo por tu propio endpoint de Formspree
+     (gratis, sin servidor). Pasos:
+     1) Entra a https://formspree.io y crea una cuenta gratis con tu correo.
+     2) Crea un formulario nuevo ("New Form"), ponle un nombre (ej. "JMC CHR").
+     3) Copia el enlace que te da, tipo https://formspree.io/f/xxxxabcd
+     4) Pégalo aquí abajo reemplazando "TU_FORM_ID_AQUI".
+     Cada respuesta enviada te llegará automáticamente a tu correo. */
+  var FORM_ENDPOINT = "https://formspree.io/f/TU_FORM_ID_AQUI";
+
+  function loadDraft(){
+    try{
+      var raw = localStorage.getItem(DRAFT_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && parsed.answers){
+          Object.keys(parsed.answers).forEach(function(k){
+            if(state.answers.hasOwnProperty(k)) state.answers[k] = parsed.answers[k];
+          });
+        }
+        if(typeof parsed.step === "number") state.step = parsed.step;
+        return true;
+      }
+    }catch(e){ /* no draft yet, o localStorage no disponible */ }
+    return false;
+  }
+
+  function scheduleAutosave(){
+    if(autosaveTimer) clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(saveDraft, 900);
+  }
+
+  function sleep(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
+
+  async function withRetry(fn, attempts){
+    var lastErr = null;
+    for(var i=0;i<attempts;i++){
+      try{ return await fn(); }
+      catch(e){ lastErr = e; if(i < attempts-1) await sleep(700 * (i+1)); }
+    }
+    throw lastErr;
+  }
+
+  function saveDraft(){
+    try{
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ answers: state.answers, step: state.step }));
+      var ind = document.getElementById("autosave-indicator");
+      if(ind){
+        ind.textContent = "Guardado ✓";
+        ind.classList.add("show");
+        setTimeout(function(){ ind.classList.remove("show"); }, 1800);
+      }
+    }catch(e){ /* best effort, no bloquea el uso del formulario */ }
+  }
+
+  function buildFieldsObject(){
+    var fields = { "Enviado el": new Date().toLocaleString('es-CO', { dateStyle:'medium', timeStyle:'short' }) };
+    BLOCKS.forEach(function(block){
+      block.questions.forEach(function(q){
+        var val = formatAnswer(q, state.answers[q.id]);
+        if(val) fields['B'+block.id+' \u00b7 '+(q.label || (q.prefix+' '+q.suffix))] = val;
+      });
+    });
+    return fields;
+  }
+
+  async function submitAnswers(){
+    if(state.submitting) return;
+    state.submitting = true;
+    state.submitError = null;
+    render();
+    if(autosaveTimer){ clearTimeout(autosaveTimer); autosaveTimer = null; }
+    try{
+      if(!FORM_ENDPOINT || FORM_ENDPOINT.indexOf("TU_FORM_ID_AQUI") > -1){
+        throw new Error("not-configured");
+      }
+      await withRetry(function(){
+        return fetch(FORM_ENDPOINT, {
+          method: "POST",
+          headers: { "Accept": "application/json", "Content-Type": "application/json" },
+          body: JSON.stringify(buildFieldsObject())
+        }).then(function(r){ if(!r.ok) throw new Error("http-"+r.status); return r; });
+      }, 3);
+      try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+      state.submitting = false;
+      state.view = "done";
+    }catch(e){
+      state.submitting = false;
+      if(e && e.message === "not-configured"){
+        state.submitError = "Este formulario todavía no tiene configurado a dónde enviar las respuestas. (Falta reemplazar FORM_ENDPOINT en el código por tu enlace de Formspree.)";
+      }else{
+        state.submitError = "No se pudo enviar. Verifica tu conexión a internet e inténtalo de nuevo — tus respuestas siguen aquí, no se pierden. Si el problema sigue, descárgalas abajo como respaldo.";
+      }
+    }
+    render();
+    if(state.submitError) window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  function downloadAnswers(){
+    try{
+      var lines = ["Cuestionario JMC CHR \u2014 respaldo generado el "+new Date().toLocaleString('es-CO')];
+      BLOCKS.forEach(function(block){
+        var blockLines = [];
+        block.questions.forEach(function(q){
+          var val = formatAnswer(q, state.answers[q.id]);
+          if(val) blockLines.push((q.label || (q.prefix+' '+q.suffix))+"\n"+val);
+        });
+        if(blockLines.length) lines.push("\n=== BLOQUE "+block.id+" \u00b7 "+block.title+" ===\n\n"+blockLines.join("\n\n"));
+      });
+      var blob = new Blob([lines.join("\n")], { type:"text/plain;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = "respuestas-jmc-chr.txt";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }catch(e){ alert("No se pudo generar la descarga."); }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* RENDER HELPERS                                                    */
+  /* ---------------------------------------------------------------- */
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function renderBody(q){
+    var ans = state.answers[q.id];
+    switch(q.type){
+      case "textarea":
+        return '<textarea class="field'+(q.quote?' quote':'')+'" data-qid="'+q.id+'" placeholder="'+esc(q.placeholder||"Escribe aquí…")+'">'+esc(ans)+'</textarea>';
+
+      case "fillblank":
+        return '<div class="fillblank"><span>'+esc(q.prefix)+'</span>'+
+          '<input class="field" type="text" data-qid="'+q.id+'" value="'+esc(ans)+'" placeholder="…">'+
+          '<span>'+esc(q.suffix)+'</span></div>';
+
+      case "list": {
+        var out = "";
+        for(var i=0;i<q.count;i++){
+          out += '<div class="list-item"><span class="num">'+(i+1)+'.</span>'+
+            '<input class="field" type="text" data-qid="'+q.id+'" data-index="'+i+'" value="'+esc(ans[i])+'" placeholder="'+esc(q.itemLabel)+' '+(i+1)+'"></div>';
+        }
+        return out;
+      }
+
+      case "checkbox": {
+        var chips = q.options.map(function(opt){
+          var on = ans.selected.indexOf(opt) > -1;
+          return '<button type="button" class="chip'+(on?' chip--on':'')+'" data-action="toggle-checkbox" data-qid="'+q.id+'" data-opt="'+esc(opt)+'">'+esc(opt)+'</button>';
+        }).join("");
+        if(q.allowOther){
+          chips += '<button type="button" class="chip'+(ans.otherOn?' chip--on':'')+'" data-action="toggle-other" data-qid="'+q.id+'">Otro</button>';
+        }
+        var html = '<div class="chips">'+chips+'</div>';
+        if(q.allowOther && ans.otherOn){
+          html += '<div class="other-input"><input class="field" type="text" data-qid="'+q.id+'" data-field="other" value="'+esc(ans.other)+'" placeholder="Especifica…"></div>';
+        }
+        if(q.withExplain){
+          html += '<div class="field-mini-label">'+esc(q.explainLabel||"Explica")+'</div>';
+          html += '<textarea class="field explain-input" data-qid="'+q.id+'" data-field="explain" placeholder="Explica…">'+esc(ans.explain)+'</textarea>';
+        }
+        return html;
+      }
+
+      case "ranked": {
+        var order = ans.order;
+        var chips2 = q.options.map(function(opt){
+          var idx = order.indexOf(opt);
+          var on = idx > -1;
+          var badge = on ? '<span class="badge">'+(idx+1)+'</span>' : '';
+          return '<button type="button" class="chip'+(on?' chip--on chip--rank':' chip--rank')+'" data-action="toggle-rank" data-qid="'+q.id+'" data-opt="'+esc(opt)+'">'+badge+esc(opt)+'</button>';
+        }).join("");
+        var html2 = '<div class="chips">'+chips2+'</div>';
+        if(q.allowOther){
+          html2 += '<div class="other-input"><input class="field" type="text" data-qid="'+q.id+'" data-field="otherText" value="'+esc(ans.otherText)+'" placeholder="Otro (opcional)"></div>';
+        }
+        return html2;
+      }
+
+      case "twotext": {
+        return '<div class="field-mini-label">'+esc(q.labels[0])+'</div>'+
+          '<textarea class="field" data-qid="'+q.id+'" data-field="a" placeholder="'+esc(q.labels[0])+'…">'+esc(ans.a)+'</textarea>'+
+          '<div class="field-mini-label">'+esc(q.labels[1])+'</div>'+
+          '<textarea class="field" data-qid="'+q.id+'" data-field="b" placeholder="'+esc(q.labels[1])+'…">'+esc(ans.b)+'</textarea>';
+      }
+
+      case "radioText": {
+        var chips3 = q.options.map(function(opt){
+          var on = ans.selected === opt;
+          return '<button type="button" class="chip'+(on?' chip--on':'')+'" data-action="toggle-radio" data-qid="'+q.id+'" data-opt="'+esc(opt)+'">'+esc(opt)+'</button>';
+        }).join("");
+        chips3 += '<button type="button" class="chip'+(ans.otherOn?' chip--on':'')+'" data-action="toggle-radio-other" data-qid="'+q.id+'">'+esc(q.otherLabel||"Otro")+'</button>';
+        var html3 = '<div class="chips">'+chips3+'</div>';
+        if(ans.otherOn){
+          html3 += '<div class="other-input"><input class="field" type="text" data-qid="'+q.id+'" data-field="otherText" value="'+esc(ans.otherText)+'" placeholder="Especifica…"></div>';
+        }
+        html3 += '<div class="field-mini-label">'+esc(q.whyLabel||"¿Por qué?")+'</div>';
+        html3 += '<textarea class="field" data-qid="'+q.id+'" data-field="why" placeholder="¿Por qué?…">'+esc(ans.why)+'</textarea>';
+        return html3;
+      }
+    }
+    return "";
+  }
+
+  function renderQuestion(q){
+    var help = q.help ? '<div class="q-help">'+esc(q.help)+'</div>' : "";
+    var label = q.type === "fillblank" ? "" : '<label class="q-label">'+esc(q.label)+'</label>';
+    return '<div class="q" id="q-'+q.id+'">'+label+help+'<div id="qbody-'+q.id+'">'+renderBody(q)+'</div></div>';
+  }
+
+  function refreshQuestion(qid){
+    var el = document.getElementById("qbody-"+qid);
+    if(el) el.innerHTML = renderBody(QMAP[qid]);
+  }
+
+  function renderIntro(){
+    return ''+
+      '<div class="intro">'+
+        '<div class="intro-kicker">INVESTIGACIÓN DEL CLIENTE REAL · JMC CHR 🚚</div>'+
+        '<h1>Cuestionario estratégico para la asesora comercial</h1>'+
+        '<p>Antes de comenzar, ten esto en cuenta:</p>'+
+        '<div class="callout">'+
+          'No buscamos respuestas "bonitas" ni respuestas teóricas. Queremos conocer lo que los clientes '+
+          '<b>realmente</b> dicen, preguntan, sienten y objetan. Siempre que sea posible, escribe las palabras exactas que utiliza el cliente.'+
+          '<div class="fire">🔥 Esto es importantísimo.</div>'+
+          '<div style="margin-top:8px;">No queremos que traduzcas:</div>'+
+          '<div class="example-line">Cliente: <b>"Es que está como caro, déjeme pensarlo".</b></div>'+
+          '<div style="text-align:center;color:var(--text-dim);">en</div>'+
+          '<div class="example-line">"El cliente tiene sensibilidad al precio".</div>'+
+          '<div style="margin-top:8px;">Queremos las dos cosas, pero sobre todo la frase real.</div>'+
+        '</div>'+
+        '<div class="stat-row">'+
+          '<div class="stat"><div class="num">15</div><div class="label">bloques</div></div>'+
+          '<div class="stat"><div class="num">50</div><div class="label">preguntas</div></div>'+
+          '<div class="stat"><div class="num">~25</div><div class="label">min. aprox.</div></div>'+
+        '</div>'+
+        '<p>Puedes cerrar y volver más tarde: tus respuestas se guardan automáticamente en este mismo enlace.</p>'+
+        '<button type="button" class="btn btn-primary" data-action="start">Comenzar</button>'+
+      '</div>';
+  }
+
+  function renderStep(){
+    var block = BLOCKS[state.step];
+    var total = BLOCKS.length;
+    var qsHtml = block.questions.map(renderQuestion).join("");
+    var isFirst = state.step === 0;
+    var isLast = state.step === total - 1;
+    return ''+
+      '<div class="step-header">'+
+        '<div class="step-kicker">BLOQUE '+(block.id<10?'0':'')+block.id+' / '+total+'</div>'+
+        '<h2 class="step-title">'+block.emoji+' '+esc(block.title)+'</h2>'+
+      '</div>'+
+      qsHtml+
+      '<div class="bottom-bar">'+
+        (state.submitError ? '<div class="submit-error">'+esc(state.submitError)+'</div>' : '')+
+        (state.submitError && isLast ? '<button type="button" class="btn btn-ghost" style="width:100%;margin-bottom:8px;" data-action="download-answers">Descargar mis respuestas (respaldo)</button>' : '')+
+        '<div class="autosave-row"><span id="autosave-indicator">Guardado ✓</span><span>Bloque '+(state.step+1)+' de '+total+'</span></div>'+
+        '<div class="nav-row">'+
+          '<button type="button" class="btn btn-ghost" data-action="prev" '+(isFirst||state.submitting?'disabled':'')+'>Atrás</button>'+
+          '<button type="button" class="btn btn-primary" data-action="'+(isLast?'submit':'next')+'" '+(state.submitting?'disabled':'')+'>'+
+            (state.submitting ? 'Enviando…' : (isLast?'Enviar respuestas':'Siguiente'))+
+          '</button>'+
+        '</div>'+
+      '</div>';
+  }
+
+  function renderDone(){
+    return ''+
+      '<div class="done">'+
+        '<div class="check">✓</div>'+
+        '<h2>Respuestas enviadas</h2>'+
+        '<p>Gracias por tomarte el tiempo de documentar esto con detalle. Esta información se usará para entender mejor al cliente real del JMC CHR.</p>'+
+        '<button type="button" class="btn btn-primary" data-action="restart">Diligenciar otra respuesta</button>'+
+      '</div>';
+  }
+
+  function formatAnswer(q, ans){
+    switch(q.type){
+      case "textarea": case "fillblank":
+        if(q.type === "fillblank"){
+          if(!ans) return null;
+          return q.prefix + " " + ans + " " + q.suffix;
+        }
+        return ans ? ans : null;
+      case "list": {
+        var items = ans.filter(function(v){ return v && v.trim(); });
+        return items.length ? items.map(function(v,i){ return (i+1)+". "+v; }).join("\n") : null;
+      }
+      case "checkbox": {
+        var parts = ans.selected.slice();
+        if(ans.otherOn && ans.other) parts.push("Otro: "+ans.other);
+        var txt = parts.length ? parts.join(", ") : null;
+        if(ans.explain) txt = (txt?txt+"\n":"") + "Explicación: "+ans.explain;
+        return txt;
+      }
+      case "ranked": {
+        var txt2 = ans.order.length ? ans.order.map(function(v,i){ return (i+1)+". "+v; }).join(" · ") : null;
+        if(ans.otherText) txt2 = (txt2?txt2+"\n":"") + "Otro: "+ans.otherText;
+        return txt2;
+      }
+      case "twotext": {
+        if(!ans.a && !ans.b) return null;
+        return q.labels[0]+": "+(ans.a||"—")+"\n"+q.labels[1]+": "+(ans.b||"—");
+      }
+      case "radioText": {
+        var sel = ans.otherOn ? (ans.otherText||"(otro, sin especificar)") : ans.selected;
+        var txt3 = sel || null;
+        if(ans.why) txt3 = (txt3?txt3+"\n":"") + "Por qué: "+ans.why;
+        return txt3;
+      }
+    }
+    return null;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* MAIN RENDER                                                       */
+  /* ---------------------------------------------------------------- */
+  function render(){
+    var app = document.getElementById("app");
+    var progressPct = state.view === "form" ? Math.round(((state.step)/(BLOCKS.length-1))*100) : (state.view==="done"?100:0);
+
+    if(state.view === "loading"){
+      app.innerHTML = '<div class="intro"><p style="color:var(--text-dim);">Cargando…</p></div>';
+      return;
+    }
+
+    var stripe = '<div class="topstripe"><div class="topstripe-fill" style="width:'+progressPct+'%"></div></div>';
+
+    if(state.view === "intro"){
+      app.innerHTML = stripe + renderIntro();
+    } else if(state.view === "form"){
+      app.innerHTML = stripe + renderStep();
+    } else if(state.view === "done"){
+      app.innerHTML = stripe + renderDone();
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* EVENTS (delegated on #app, stable across re-renders)              */
+  /* ---------------------------------------------------------------- */
+  function initEvents(){
+    var app = document.getElementById("app");
+
+    app.addEventListener("input", function(e){
+      var el = e.target;
+      var qid = el.dataset.qid;
+      if(!qid) return;
+      var q = QMAP[qid];
+      var field = el.dataset.field;
+      var idx = el.dataset.index;
+      if(q.type === "textarea" || q.type === "fillblank"){
+        state.answers[qid] = el.value;
+      } else if(q.type === "list"){
+        state.answers[qid][parseInt(idx,10)] = el.value;
+      } else if(field){
+        state.answers[qid][field] = el.value;
+      }
+      scheduleAutosave();
+    });
+
+    app.addEventListener("click", function(e){
+      var actionEl = e.target.closest("[data-action]");
+      if(!actionEl) return;
+      var action = actionEl.dataset.action;
+      var qid = actionEl.dataset.qid;
+
+      switch(action){
+        case "start":
+          state.view = "form"; state.step = 0; render(); break;
+        case "next":
+          if(state.step < BLOCKS.length - 1){ state.step++; render(); window.scrollTo(0,0); }
+          break;
+        case "prev":
+          if(state.step > 0){ state.step--; render(); window.scrollTo(0,0); }
+          break;
+        case "submit":
+          submitAnswers(); break;
+        case "restart":
+          BLOCKS.forEach(function(b){ b.questions.forEach(function(q){ state.answers[q.id] = defaultAnswer(q); }); });
+          state.step = 0; state.view = "intro"; render(); break;
+        case "download-answers":
+          downloadAnswers(); break;
+
+        case "toggle-checkbox": {
+          var ans = state.answers[qid];
+          var opt = actionEl.dataset.opt;
+          var i = ans.selected.indexOf(opt);
+          if(i > -1) ans.selected.splice(i,1); else ans.selected.push(opt);
+          refreshQuestion(qid); scheduleAutosave(); break;
+        }
+        case "toggle-other": {
+          var ans2 = state.answers[qid];
+          ans2.otherOn = !ans2.otherOn;
+          refreshQuestion(qid); scheduleAutosave(); break;
+        }
+        case "toggle-radio": {
+          var ans3 = state.answers[qid];
+          var opt3 = actionEl.dataset.opt;
+          ans3.selected = (ans3.selected === opt3) ? "" : opt3;
+          if(ans3.selected) ans3.otherOn = false;
+          refreshQuestion(qid); scheduleAutosave(); break;
+        }
+        case "toggle-radio-other": {
+          var ans4 = state.answers[qid];
+          ans4.otherOn = !ans4.otherOn;
+          if(ans4.otherOn) ans4.selected = "";
+          refreshQuestion(qid); scheduleAutosave(); break;
+        }
+        case "toggle-rank": {
+          var ans5 = state.answers[qid];
+          var opt5 = actionEl.dataset.opt;
+          var idx5 = ans5.order.indexOf(opt5);
+          if(idx5 > -1) ans5.order.splice(idx5,1); else ans5.order.push(opt5);
+          refreshQuestion(qid); scheduleAutosave(); break;
+        }
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* INIT                                                              */
+  /* ---------------------------------------------------------------- */
+  function init(){
+    initEvents();
+    var hadDraft = loadDraft();
+    state.view = hadDraft ? "form" : "intro";
+    render();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
